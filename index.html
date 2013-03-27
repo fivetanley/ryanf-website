@@ -1,0 +1,86 @@
+<!doctype html>
+<html>
+<head>
+  <script src="/js/libs/jquery.js"></script>
+  <script src="/js/libs/handlebars.js"></script>
+  <script src="/js/libs/ember.js"></script>
+  <link rel="stylesheet" type="text/css" href="/css/styles.css"/>
+</head>
+<body>
+
+<script>
+  window.VideoApp = Ember.Application.create();
+  VideoApp.videos = [
+    {},
+    Ember.Object.create({
+      id: 1,
+      title: 'Friday',
+      embedCode: '<iframe width="560" height="315" src="http://www.youtube.com/embed/kfVsfOSbJY0" frameborder="0" allowfullscreen></iframe>'
+    })
+  ];
+
+  VideoApp.Router.map(function(){
+    this.resource('videos');
+    this.resource('video', { path: '/videos/:video_id' });
+  });
+
+  VideoApp.VideosRoute = Ember.Route.extend({
+    setupController: function(controller,model){
+      controller.set('content',model);
+    },
+    model: function(){
+      return VideoApp.videos;
+    }
+  });
+
+  VideoApp.VideoController = Ember.ObjectController.extend({})
+  VideoApp.VideoRoute = Ember.Route.extend({
+    model: function(params){
+      return VideoApp.videos[params.video_id];
+    },
+    setupController: function(controller,model){
+      controller.set('content',model);
+    }
+  });
+
+  VideoApp.IndexRoute = Ember.Route.extend({
+    redirect: function(){
+      this.transitionTo('video',VideoApp.videos[1])
+    }
+  });
+
+
+</script>
+
+<script type="text/x-handlebars" data-template-name="application">
+  <div id="nav">
+    {{render "videos-sidebar"}}
+  </div>
+
+  <div id="content">
+    {{outlet}}
+  </div>
+</script>
+<script type="text/x-handlebars" data-template-name="videos">
+  {{outlet}}
+</script>
+
+<script type="text/x-handlebars" data-template-name="videos-sidebar">
+<ul>
+  {{#each video in controller}}
+    <li>
+      {{#linkTo "video" video}}
+        {{video.title}}
+      {{/linkTo}}
+    </li>
+  {{/each}}
+</ul>
+</script>
+
+<script type="text/x-handlebars" data-template-name="video">
+  <h1>{{title}}</h1>
+  {{{embedCode}}}
+</script>
+</body>
+</html>
+
